@@ -1,0 +1,33 @@
+name: NEPSE Hourly Update
+
+on:
+  schedule:
+    # This is "Cron" syntax for "Every hour"
+    - cron: '0 * * * *'
+  workflow_dispatch: # Allows you to run it manually for testing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13.11'
+
+      - name: Install Dependencies
+        run: pip install pandas beautifulsoup4 requests
+
+      - name: Run Scraper
+        run: python scraper_script.py  # This is your main Python file
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add data/*.csv
+          git commit -m "Hourly NEPSE Data Update" || exit 0
+          git push
